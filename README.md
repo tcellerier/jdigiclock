@@ -1,0 +1,2 @@
+# jdigiclock
+jDigiClock plugin

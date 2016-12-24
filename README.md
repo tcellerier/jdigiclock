@@ -4,18 +4,29 @@
 ## Install
 * Require Jquery library
 * Insert the code below in your html page :
-** <link rel="stylesheet" type="text/css" href="jdigiclock/jquery.jdigiclock.css">
-** <script type="text/javascript" src="jdigiclock/jquery.jdigiclock.js"></script>
-** <script>
-    $('#digiclock').jdigiclock({
-        imagesPath : 'jdigiclock/images/',
-        am_pm : false,
-        weatherLocationCode : '615702',
-        weatherMetric : 'C',
-        weatherUpdate : '60'
-    });
-    </script>
+```
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="jdigiclock/jquery.jdigiclock.css">
+</head>
+<body>
+<div id="digiclock"></div>
+<script type="text/javascript" src="jdigiclock/jquery.jdigiclock.js"></script>
+<script>
+$('#digiclock').jdigiclock({
+    imagesPath : 'jdigiclock/images/',
+    am_pm : false,
+    weatherLocationCode : '615702',
+    weatherMetric : 'C',
+    weatherUpdate : '60'
+});
+</script>
+</body>
+</html>
+```
 
+## Preview
 ![alt tag](screenshot.png)
 
 
@@ -23,8 +34,7 @@
 
 ### Version 2.1.4 - 2016-05-31
 * Modification by Thomas Cellerier
-* Modification to have only a single view page, added French language
-
+* Single view page, added French language
 
 ### Version 2.1.3 - 2015-03-21
 * Unofficial modification by <a href="http://www.baldwhiteguy.co.nz" target="_blank">Andrew Mercer</a>

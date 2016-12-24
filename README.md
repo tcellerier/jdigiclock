@@ -2,8 +2,8 @@
 
 
 ## Install
-* Require Jquery library
-* Insert the code below in your html page :
+* Require Jquery library (cf. code below)
+* Insert the code below in your html page and change the parameters to fit your needs :
 ```
 <html>
 <head>
@@ -15,11 +15,13 @@
 <script type="text/javascript" src="jdigiclock/jquery.jdigiclock.js"></script>
 <script>
 $('#digiclock').jdigiclock({
-    imagesPath : 'jdigiclock/images/',
-    am_pm : false,
-    weatherLocationCode : '615702',
-    weatherMetric : 'C',
-    weatherUpdate : '60'
+    imagesPath : 'jdigiclock/images/', // Base path to image files. Clock and Weather images are located in subdirectories below this
+    lang: 'fr', // Language of date : fr or en
+    am_pm : false, // Specifies the AM/PM option.
+    weatherLocationCode : '615702', // Weather location code (see lookup: woeid.rosselliot.co.nz).
+    weatherMetric : 'C', // Specifies the weather metric mode: c or f.
+    weatherUpdate : '60', // Weather update in minutes.
+    svrOffset: 0  // Server offset in milliseconds.
 });
 </script>
 </body>

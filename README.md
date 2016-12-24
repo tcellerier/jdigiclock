@@ -3,19 +3,20 @@
 
 ## Install
 * Require Jquery library (cf. code below)
-* Insert the code below in your html page and change the parameters to fit your needs :
+* Copy the files and insert the code below in an html page in the same folder
+* Change the parameters in the code below to fit your needs
 ```
 <html>
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="jdigiclock/jquery.jdigiclock.css">
+<link rel="stylesheet" type="text/css" href="jquery.jdigiclock.css">
 </head>
 <body>
 <div id="digiclock"></div>
-<script type="text/javascript" src="jdigiclock/jquery.jdigiclock.js"></script>
+<script type="text/javascript" src="jquery.jdigiclock.js"></script>
 <script>
 $('#digiclock').jdigiclock({
-    imagesPath : 'jdigiclock/images/', // Base path to image files. Clock and Weather images are located in subdirectories below this
+    imagesPath : 'images/', // Base path to image files. Clock and Weather images are located in subdirectories below this
     lang: 'fr', // Language of date : fr or en
     am_pm : false, // Specifies the AM/PM option.
     weatherLocationCode : '615702', // Weather location code (see lookup: woeid.rosselliot.co.nz).

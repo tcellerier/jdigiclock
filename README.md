@@ -45,14 +45,14 @@ $('#digiclock').jdigiclock({
 * Server offset option allowing JDigiClock to display in specific timezone based on server-supplied time.
 * Compatibility with JQuery 1.10.2      
 
-### Version 2.1.0 - 2010-02-24
+### Version 2.1.0 - 2010-02-24 (https://github.com/dineshkummarc)
 * Fixed bug with configuration option <code>weatherImagesPath</code> reported by <a href="http://www.emessage.it" target="_blank">Alessandro Benedetti</a>
 * Animation method rewriting
 * New configuration option <code>proxyType</code>
 * Added .NET proxy. Thanks to <a href="http://www.emessage.it" target="_blank">Alessandro Benedetti</a>
 
-### Version 2.0.0 - 2009-12-06
+### Version 2.0.0 - 2009-12-06 (https://github.com/dineshkummarc)
 * Add 5-day forecast panel.
 
-### Version 1.0.0 - 2009-11-28
+### Version 1.0.0 - 2009-11-28 (https://github.com/dineshkummarc)
 * Initial release.

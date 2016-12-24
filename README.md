@@ -3,11 +3,12 @@
 
 ## Install
 * Require Jquery library (cf. code below)
-* Copy the files and insert the code below in an html page in the same folder
+* Copy the project files and insert the code below in an html page located in the same folder
 * Change the parameters in the code below to fit your needs
 ```
 <html>
 <head>
+<meta charset="utf-8">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="jquery.jdigiclock.css">
 </head>

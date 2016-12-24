@@ -1,9 +1,30 @@
 # jdigiclock
 
+
+## Install
+* Require Jquery library
+* Insert the code below in your html page :
+** <link rel="stylesheet" type="text/css" href="jdigiclock/jquery.jdigiclock.css">
+** <script type="text/javascript" src="jdigiclock/jquery.jdigiclock.js"></script>
+** <script>
+    $('#digiclock').jdigiclock({
+        imagesPath : 'jdigiclock/images/',
+        am_pm : false,
+        weatherLocationCode : '615702',
+        weatherMetric : 'C',
+        weatherUpdate : '60'
+    });
+    </script>
+
+![alt tag](screenshot.png)
+
+
 ## Changelog
 
 ### Version 2.1.4 - 2016-05-31
-- Adapted to have only 1 single view page, added French language
+* Modification by Thomas Cellerier
+* Modification to have only a single view page, added French language
+
 
 ### Version 2.1.3 - 2015-03-21
 * Unofficial modification by <a href="http://www.baldwhiteguy.co.nz" target="_blank">Andrew Mercer</a>

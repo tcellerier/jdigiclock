@@ -15,7 +15,8 @@
  *                     Avoids repeated sliding panels on left/right clicks. Based on update by s4ty at
  *                     http://www.jquery-board.de/threads/3458-jDigiClock/page4
  *                     Doc here : http://www.baldwhiteguy.co.nz/jdigiclock/
- * 31-MAY-2016:  2.1.4 Adatped to have only 1 single view page, added French language
+ * 31-MAY-2016:  2.1.4 Adapted to have only 1 single view page, added French language
+ *                     
  *
  * WeatherLocationCodes now use WOEID codes, and query format using YQL:
  * https://developer.yahoo.com/yql/

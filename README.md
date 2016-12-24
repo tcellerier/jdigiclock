@@ -34,11 +34,12 @@ $('#digiclock').jdigiclock({
 ![alt tag](screenshot.png)
 
 
+
 ## Changelog
 
 ### Version 2.1.4 - 2016-05-31
 * Modification by Thomas Cellerier
-* Single view page, added French language
+* Single page view, added French language
 
 ### Version 2.1.3 - 2015-03-21
 * Unofficial modification by <a href="http://www.baldwhiteguy.co.nz" target="_blank">Andrew Mercer</a>

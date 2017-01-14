@@ -37,6 +37,9 @@ $('#digiclock').jdigiclock({
 
 ## Changelog
 
+### Version 2.1.5 - 2017-01-14
+* Fix API Yahoo
+
 ### Version 2.1.4 - 2016-05-31
 * Modification by Thomas Cellerier
 * Single page view, added French language

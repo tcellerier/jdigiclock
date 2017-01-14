@@ -16,6 +16,7 @@
  *                     http://www.jquery-board.de/threads/3458-jDigiClock/page4
  *                     Doc here : http://www.baldwhiteguy.co.nz/jdigiclock/
  * 31-MAY-2016:  2.1.4 Adapted to have only 1 single view page, added French language
+ * 13-JAN-2017:  2.1.5 Fix API Yahoo
  *                     
  *
  * WeatherLocationCodes now use WOEID codes, and query format using YQL:
@@ -271,10 +272,11 @@
 
      el.find('#weather').html('<p class="loading">Update Weather ...</p>');
  
-     $.getJSON('https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20'
+     $.getJSON('https://query.yahooapis.com/v1/public/yql?format=json&q=select%20*%20from%20weather.forecast%20where%20'
                   + 'woeid=' + el.weatherLocationCode
                   + '%20and%20u="' + el.weatherMetric + '"'
-                  + '&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=?',
+                  //+ '&diagnostics=true'
+                  + '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys',
              function (data) {
 
 

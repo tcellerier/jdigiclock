@@ -1,5 +1,5 @@
 /*
- * jDigiClock plugin 2.1.4
+ * jDigiClock plugin 2.1.5
  *
  * http://www.radoslavdimov.com/jquery-plugins/jquery-plugin-digiclock/
  *
@@ -16,8 +16,8 @@
  *                     http://www.jquery-board.de/threads/3458-jDigiClock/page4
  *                     Doc here : http://www.baldwhiteguy.co.nz/jdigiclock/
  * 31-MAY-2016:  2.1.4 Adapted to have only 1 single view page, added French language
- * 13-JAN-2017:  2.1.5 Fix API Yahoo
- *                     
+ * 13-JAN-2017:  2.1.5 Fix Yahoo API connection issues 
+ *                
  *
  * WeatherLocationCodes now use WOEID codes, and query format using YQL:
  * https://developer.yahoo.com/yql/
@@ -85,6 +85,8 @@
 
                 $this.html(html);
 
+                $this.find('#weather').html('<p class="loading">Update Weather ...<br><span style="font-size:16px;"><img src="' + $this.imagesPath + 'refresh_grey.png" alt="reload" title="reload" id="reload" /> Reload</span></p>');
+
                 $this.displayClock($this);
 
                 $this.displayWeather($this);               
@@ -93,6 +95,8 @@
         }
     });
    
+
+
 
     $.fn.displayClock = function(el) {
         $.fn.getTime(el);
@@ -269,8 +273,6 @@
     }
 
  $.fn.getWeather = function(el) {
-
-     el.find('#weather').html('<p class="loading">Update Weather ...</p>');
  
      $.getJSON('https://query.yahooapis.com/v1/public/yql?format=json&q=select%20*%20from%20weather.forecast%20where%20'
                   + 'woeid=' + el.weatherLocationCode
@@ -279,80 +281,88 @@
                   + '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys',
              function (data) {
 
+                // On met à jour les data que si l'API a retourné des données
+                if (typeof data.query.results !== 'undefined' && data.query.results != null) {
 
-                var curr_temp = '<p class="temp">' + data.query.results.channel.item.condition.temp 
-                               + '&deg;<span class="metric">'
-                               + el.weatherMetric.toUpperCase() + '</span></p>';
+                    var curr_temp = '<p class="temp">' + data.query.results.channel.item.condition.temp 
+                                   + '&deg;<span class="metric">'
+                                   + el.weatherMetric.toUpperCase() + '</span></p>';
 
-                 el.find('#weather').css('background','url('
-                         + el.weatherImagesPath 
-                         + 'yw' 
-                         + data.query.results.channel.item.forecast[0].code  /* forecast vs actuellement : data.query.results.channel.item.condition.code */
-                         + '.png) 50% 0 no-repeat');
-                                                        
-                 var weather = '<div id="local"><p class="city">' 
-                             + data.query.results.channel.location.city 
+                     el.find('#weather').css('background','url('
+                             + el.weatherImagesPath 
+                             + 'yw' 
+                             + data.query.results.channel.item.forecast[0].code  /* forecast vs actuellement : data.query.results.channel.item.condition.code */
+                             + '.png) 50% 0 no-repeat');
+                                                            
+                     var weather = '<div id="local"><p class="city">' 
+                                 + data.query.results.channel.location.city 
+                                 + '</p>' 
+                                // + '<p class="currdesc">' + data.query.results.channel.item.forecast[0].text + '</p>' /* forecast vs actuellement : data.query.results.channel.item.condition.text  */
+                                 + '<p class="high_low">' 
+                                  + data.query.results.channel.item.forecast[0].high 
+                                  + '&deg;&nbsp;/&nbsp;' 
+                                  + data.query.results.channel.item.forecast[0].low 
+                                  + '&deg;</p></div>';
+
+                     weather += '<div id="temp"><p id="date">' 
+                             + el.currDate 
                              + '</p>' 
-                            // + '<p class="currdesc">' + data.query.results.channel.item.forecast[0].text + '</p>' /* forecast vs actuellement : data.query.results.channel.item.condition.text  */
-                             + '<p class="high_low">' 
-                              + data.query.results.channel.item.forecast[0].high 
-                              + '&deg;&nbsp;/&nbsp;' 
-                              + data.query.results.channel.item.forecast[0].low 
-                              + '&deg;</p></div>';
+                             + curr_temp + '</div>';
 
-                 weather += '<div id="temp"><p id="date">' 
-                         + el.currDate 
-                         + '</p>' 
-                         + curr_temp + '</div>';
+                     el.find('#weather').html(weather);
+                
+                               
 
-                 el.find('#weather').html(weather);
-            
-                           
+                     el.find('#weather').append('<ul id="forecast"></ul>');
+                     data.query.results.channel.item.forecast.shift();
+                     for (var i in data.query.results.channel.item.forecast) {
+                        
+                         if (i < 4) {
+                             var d_date = new Date(data.query.results.channel.item.forecast[i].date);
+                             var day_name = data.query.results.channel.item.forecast[i].day;
+                             var forecast = '<li>';
+                          
+                             forecast    += '<p class="dayname">' + day_name + '</p>'
+                                          + '<img src="' 
+                                          + el.weatherImagesPath 
+                                          + 'yw' 
+                                          + data.query.results.channel.item.forecast[i].code
+                                          + '.png" alt="' 
+                                          + data.query.results.channel.item.forecast[i].text 
+                                          + '" title="' 
+                                          + data.query.results.channel.item.forecast[i].text 
+                                          + '" />';
+                                       
+                             forecast    += '<p>' 
+                                          + data.query.results.channel.item.forecast[i].high
+                                          + '&deg;&nbsp;/&nbsp;' 
+                                          + data.query.results.channel.item.forecast[i].low 
+                                          + '&deg;</p>';
+                                       
+                             forecast    += '</li>';
+                             el.find('#forecast').append(forecast);
+                        }
+                     }
 
-                 el.find('#weather').append('<ul id="forecast"></ul>');
-                 data.query.results.channel.item.forecast.shift();
-                 for (var i in data.query.results.channel.item.forecast) {
-                    
-                     if (i < 4) {
-                         var d_date = new Date(data.query.results.channel.item.forecast[i].date);
-                         var day_name = data.query.results.channel.item.forecast[i].day;
-                         var forecast = '<li>';
-                      
-                         forecast    += '<p class="dayname">' + day_name + '</p>'
-                                      + '<img src="' 
-                                      + el.weatherImagesPath 
-                                      + 'yw' 
-                                      + data.query.results.channel.item.forecast[i].code
-                                      + '.png" alt="' 
-                                      + data.query.results.channel.item.forecast[i].text 
-                                      + '" title="' 
-                                      + data.query.results.channel.item.forecast[i].text 
-                                      + '" />';
-                                   
-                         forecast    += '<p>' 
-                                      + data.query.results.channel.item.forecast[i].high
-                                      + '&deg;&nbsp;/&nbsp;' 
-                                      + data.query.results.channel.item.forecast[i].low 
-                                      + '&deg;</p>';
-                                   
-                         forecast    += '</li>';
-                         el.find('#forecast').append(forecast);
-                    }
-                 }
+                     el.find('#weather').append('<div id="bottom"><div id="soleil"></div><div id="update"><img src="' + el.imagesPath + 'refresh_grey.png" alt="reload" title="reload" id="reload" />' + el.timeUpdate + '</div></div>');
 
-                 el.find('#weather').append('<div id="bottom"><div id="soleil"></div><div id="update"><img src="' + el.imagesPath + 'refresh_01.png" alt="reload" title="reload" id="reload" />' + el.timeUpdate + '</div></div>');
+                    var soleil = '<font color="yellow">☀</font> ▲' + data.query.results.channel.astronomy.sunrise + '&nbsp;&nbsp;▼' + data.query.results.channel.astronomy.sunset;
+                    el.find('#soleil').html(soleil);
+                }
 
-                var soleil = '<font color="yellow">☀</font> ▲' + data.query.results.channel.astronomy.sunrise + '&nbsp;&nbsp;▼' + data.query.results.channel.astronomy.sunset;
-                el.find('#soleil').html(soleil);
+                else { // Si pb de connexion à l'API
+                    // On change la couleur du bouton refresh en rouge
+                    $('#reload').attr('src', el.imagesPath + 'refresh_red.png');  
+                }
 
 
-                 $('#reload').click(function() {
-                     el.find('#weather').html('');
+                $('#reload').click(function() {
+                     /*el.find('#weather').html('');
                      el.find('#weather').css('background', 'url('
                          + el.weatherImagesPath 
-                         + 'blank.png) 50% 0 no-repeat');
+                         + 'blank.png) 50% 0 no-repeat'); */
                      $.fn.getWeather(el);
-                 });
+                });
              
         });
     }

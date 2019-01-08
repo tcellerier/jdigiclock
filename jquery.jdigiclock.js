@@ -17,7 +17,7 @@
  *                     Doc here : http://www.baldwhiteguy.co.nz/jdigiclock/
  * 31-MAY-2016:  2.1.4 Adapted to have only 1 single view page, added French language
  * 13-JAN-2017:  2.1.5 Fixed Yahoo API connection issues 
- * 5-JAN-2018:   3.0.0 Migrated to undocumented MeteoFrance API
+ * 5-JAN-2019:   3.0.0 Migrated to undocumented MeteoFrance API
  *                
  *
  * Dual licensed under the MIT and GPL licenses:

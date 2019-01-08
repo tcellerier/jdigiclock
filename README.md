@@ -38,7 +38,7 @@ $('#digiclock').jdigiclock({
 
 ## Changelog
 
-### Version 3.0.0 - 2018-01-05
+### Version 3.0.0 - 2019-01-05
 * Migrated to undocumented MeteoFrance API
 
 ### Version 2.1.5 - 2017-01-14

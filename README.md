@@ -4,6 +4,7 @@
 ## Install
 * Require Jquery library 
 * Require jQuery AJAX Cross Origin: plugin to bypass Same-origin_policy using Google Apps Script (http://www.ajax-cross-origin.com)
+* In the file jquery.jdigiclock.js, set up the Google App URL variable proxyGoogleCrossOrigin (instructions on http://www.ajax-cross-origin.com after a small donation) 
 * Copy the project files and insert the code below in an html page located in the same folder
 * Change the parameters in the code below to fit your needs
 ```

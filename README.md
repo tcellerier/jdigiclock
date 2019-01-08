@@ -2,7 +2,8 @@
 
 
 ## Install
-* Require Jquery library (cf. code below)
+* Require Jquery library 
+* Require jQuery AJAX Cross Origin: plugin to bypass Same-origin_policy using Google Apps Script (http://www.ajax-cross-origin.com)
 * Copy the project files and insert the code below in an html page located in the same folder
 * Change the parameters in the code below to fit your needs
 ```
@@ -10,6 +11,7 @@
 <head>
 <meta charset="utf-8">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.ajax-cross-origin.min.js"></script>
 <link rel="stylesheet" type="text/css" href="jquery.jdigiclock.css">
 </head>
 <body>
@@ -18,14 +20,13 @@
 <script>
 $('#digiclock').jdigiclock({
     imagesPath : 'images/', // Base path to image files. Clock and Weather images are located in subdirectories below this
-    lang: 'fr', // Language of date : fr or en
     am_pm : false, // Specifies the AM/PM option.
-    weatherLocationCode : '615702', // Weather location code (see lookup: woeid.rosselliot.co.nz).
-    weatherMetric : 'C', // Specifies the weather metric mode: c or f.
-    weatherUpdate : '60', // Weather update in minutes.
-    svrOffset: 0  // Server offset in milliseconds.
+    weatherLocationCode : '751090', // Meteofrance city code
+    SolarCalendarLocationCode: 'DEPT75', // Meteofrance region code
+    weatherUpdate : '60 // Weather update in minutes.
 });
 </script>
+
 </body>
 </html>
 ```
@@ -37,8 +38,11 @@ $('#digiclock').jdigiclock({
 
 ## Changelog
 
+### Version 3.0.0 - 2018-01-05
+* Migrated to undocumented MeteoFrance API
+
 ### Version 2.1.5 - 2017-01-14
-* Fix API Yahoo
+* Fixed API Yahoo
 
 ### Version 2.1.4 - 2016-05-31
 * Modification by Thomas Cellerier

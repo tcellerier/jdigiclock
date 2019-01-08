@@ -16,14 +16,9 @@
  *                     http://www.jquery-board.de/threads/3458-jDigiClock/page4
  *                     Doc here : http://www.baldwhiteguy.co.nz/jdigiclock/
  * 31-MAY-2016:  2.1.4 Adapted to have only 1 single view page, added French language
- * 13-JAN-2017:  2.1.5 Fix Yahoo API connection issues 
+ * 13-JAN-2017:  2.1.5 Fixed Yahoo API connection issues 
+ * 5-JAN-2018:   3.0.0 Migrated to undocumented MeteoFrance API
  *                
- *
- * WeatherLocationCodes now use WOEID codes, and query format using YQL:
- * https://developer.yahoo.com/yql/
- *
- * Easy lookup of WOEID codes at:
- * http://woeid.rosselliot.co.nz
  *
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
@@ -42,8 +37,8 @@
                 imagesPath: 'dashboard/jdigiclock/images/',
                 lang: 'fr',
                 am_pm: false,
-                weatherLocationCode: '615702',
-                weatherMetric: 'c',
+                weatherLocationCode: '751090', // Meteofrance city code
+                SolarCalendarLocationCode: 'DEPT75', // Meteofrance region code
                 weatherUpdate: 59,
                 svrOffset: 0   
             };
@@ -51,11 +46,13 @@
             var regional = [];
             regional['fr'] = {
                 monthNames: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'],
-                dayNames: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+                dayNames: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+                lang: 'fr'
             }
             regional['en'] = {
                 monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                dayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                dayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                lang: 'en'
             }
 
 
@@ -69,11 +66,11 @@
                 $this.lang = regional[o.lang] == undefined ? regional['en'] : regional[o.lang];
                 $this.am_pm = o.am_pm;
                 $this.weatherLocationCode = o.weatherLocationCode;
-                $this.weatherMetric = o.weatherMetric;
+                $this.SolarCalendarLocationCode = o.SolarCalendarLocationCode;
                 $this.weatherUpdate = o.weatherUpdate;
                 $this.svrOffset = o.svrOffset;
                 $this.clockImagesPath = o.imagesPath + 'clock/';
-                $this.weatherImagesPath = o.imagesPath + 'weather/';
+                $this.weatherImagesPath = o.imagesPath + 'picto/';
                 $this.currDate = '';
                 $this.timeUpdate = '';
 
@@ -273,97 +270,123 @@
     }
 
  $.fn.getWeather = function(el) {
+
+    $.ajaxSetup({
+        crossOrigin: true,
+        proxy: proxyGoogleCrossOrigin
+    });
+    
+
+    // On récupère les prévisions
+    $.getJSON('http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
+        , function (data) {
+
+            data = JSON.parse(data);
+   
+            // On met à jour les data que si l'API a retourné des données
+            if (typeof data !== 'undefined' && data != null) {
  
-     $.getJSON('https://query.yahooapis.com/v1/public/yql?format=json&q=select%20*%20from%20weather.forecast%20where%20'
-                  + 'woeid=' + el.weatherLocationCode
-                  + '%20and%20u="' + el.weatherMetric + '"'
-                  //+ '&diagnostics=true'
-                  + '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys',
-             function (data) {
+                var temp_now = Math.round(( parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMin) + parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMax)) / 2) // 1er élèment du forecast 48h
+                var curr_temp = '<p class="temp">' + String(temp_now) 
+                               + '&deg;<span class="metric">'
+                               + 'C' + '</span></p>';
 
-                // On met à jour les data que si l'API a retourné des données
-                if (typeof data.query.results !== 'undefined' && data.query.results != null) {
-
-                    var curr_temp = '<p class="temp">' + data.query.results.channel.item.condition.temp 
-                                   + '&deg;<span class="metric">'
-                                   + el.weatherMetric.toUpperCase() + '</span></p>';
-
-                     el.find('#weather').css('background','url('
-                             + el.weatherImagesPath 
-                             + 'yw' 
-                             + data.query.results.channel.item.forecast[0].code  /* forecast vs actuellement : data.query.results.channel.item.condition.code */
-                             + '.png) 50% 0 no-repeat');
-                                                            
-                     var weather = '<div id="local"><p class="city">' 
-                                 + data.query.results.channel.location.city 
-                                 + '</p>' 
-                                // + '<p class="currdesc">' + data.query.results.channel.item.forecast[0].text + '</p>' /* forecast vs actuellement : data.query.results.channel.item.condition.text  */
-                                 + '<p class="high_low">' 
-                                  + data.query.results.channel.item.forecast[0].high 
-                                  + '&deg;&nbsp;/&nbsp;' 
-                                  + data.query.results.channel.item.forecast[0].low 
-                                  + '&deg;</p></div>';
-
-                     weather += '<div id="temp"><p id="date">' 
-                             + el.currDate 
-                             + '</p>' 
-                             + curr_temp + '</div>';
-
-                     el.find('#weather').html(weather);
-                
-                               
-
-                     el.find('#weather').append('<ul id="forecast"></ul>');
-                     data.query.results.channel.item.forecast.shift();
-                     for (var i in data.query.results.channel.item.forecast) {
-                        
-                         if (i < 4) {
-                             var d_date = new Date(data.query.results.channel.item.forecast[i].date);
-                             var day_name = data.query.results.channel.item.forecast[i].day;
-                             var forecast = '<li>';
-                          
-                             forecast    += '<p class="dayname">' + day_name + '</p>'
-                                          + '<img src="' 
-                                          + el.weatherImagesPath 
-                                          + 'yw' 
-                                          + data.query.results.channel.item.forecast[i].code
-                                          + '.png" alt="' 
-                                          + data.query.results.channel.item.forecast[i].text 
-                                          + '" title="' 
-                                          + data.query.results.channel.item.forecast[i].text 
-                                          + '" />';
-                                       
-                             forecast    += '<p>' 
-                                          + data.query.results.channel.item.forecast[i].high
-                                          + '&deg;&nbsp;/&nbsp;' 
-                                          + data.query.results.channel.item.forecast[i].low 
-                                          + '&deg;</p>';
-                                       
-                             forecast    += '</li>';
-                             el.find('#forecast').append(forecast);
-                        }
-                     }
-
-                     el.find('#weather').append('<div id="bottom"><div id="soleil"></div><div id="update"><img src="' + el.imagesPath + 'refresh_grey.png" alt="reload" title="reload" id="reload" />' + el.timeUpdate + '</div></div>');
-
-                    var soleil = '<font color="yellow">☀</font> ▲' + data.query.results.channel.astronomy.sunrise + '&nbsp;&nbsp;▼' + data.query.results.channel.astronomy.sunset;
-                    el.find('#soleil').html(soleil);
-                }
-
-                else { // Si pb de connexion à l'API
-                    // On change la couleur du bouton refresh en rouge
-                    $('#reload').attr('src', el.imagesPath + 'refresh_red.png');  
-                }
-
-
-                $('#reload').click(function() {
-                     /*el.find('#weather').html('');
-                     el.find('#weather').css('background', 'url('
+                 el.find('#weather').css('background','url('
                          + el.weatherImagesPath 
-                         + 'blank.png) 50% 0 no-repeat'); */
-                     $.fn.getWeather(el);
+                         + data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].picto   // 1er élèment du forecast 48h
+                         + '.png) 50% 0 no-repeat');
+                                                        
+                 var weather = '<div id="local"><p class="city">' 
+                             + data.result.ville.nom
+                             + '</p>' 
+                             + '<p class="high_low">' 
+                              + data.result.resumes['0_resume'].temperatureMin
+                              + '&deg;&nbsp;/&nbsp;' 
+                              + data.result.resumes['0_resume'].temperatureMax
+                              + '&deg;</p></div>';
+
+                 weather += '<div id="temp"><p id="date">' 
+                         + el.currDate 
+                         + '</p>' 
+                         + curr_temp + '</div>';
+
+                 el.find('#weather').html(weather);
+            
+                           
+
+                 el.find('#weather').append('<ul id="forecast"></ul>');
+                 
+                 for (i = 1; i <= 4; i++) {
+                    
+                     d_day_code = String(i) + '_resume';
+                     var d_date = new Date(data.result.resumes[d_day_code].date);
+                     var forecast = '<li>';
+
+                  
+                     forecast    += '<p class="dayname">' + el.lang.dayNames[d_date.getDay()] + '&nbsp;' + d_date.getDate() + '</p>'
+                                  + '<img src="' 
+                                  + el.weatherImagesPath 
+                                  + data.result.resumes[d_day_code].picto
+                                  + '.png" alt="' 
+                                  + data.result.resumes[d_day_code].description
+                                  + '" title="' 
+                                  + data.result.resumes[d_day_code].description
+                                  + '" />';
+                               
+                     forecast    += '<div class="daytemp">' 
+                                  + data.result.resumes[d_day_code].temperatureMin
+                                  + '&deg;&nbsp;/&nbsp;' 
+                                  + data.result.resumes[d_day_code].temperatureMax
+                                  + '&deg;</div>';
+                               
+                     forecast    += '</li>';
+                     el.find('#forecast').append(forecast);
+
+                 }
+                
+
+                el.find('#weather').append('<div id="bottom"><div id="soleil"></div><div id="update"><img src="' + el.imagesPath + 'refresh_grey.png" alt="reload" title="reload" id="reload" />' + el.timeUpdate + '</div></div>');
+                
+                // On récupère les info de coucher / lever soleil
+                $.ajaxSetup({
+                    crossOrigin: true,
+                    proxy: proxyGoogleCrossOrigin
                 });
+                $.getJSON('http://www.meteofrance.com/mf3-rpc-portlet/rest/ephemerides/' + el.SolarCalendarLocationCode
+                    , function (data) {
+                       // On met à jour les data que si l'API a retourné des données
+                        if (typeof data !== 'undefined' && data != null) {
+
+                            data = JSON.parse(data);
+                            soleil = '<font color="yellow">☀</font> ▲&nbsp;' + data.heureLeveSoleil + '&nbsp;&nbsp;&nbsp;▼&nbsp;' + data.heureCoucheSoleil;
+                            el.find('#soleil').append(soleil);
+                        }
+                    });
+                $.ajaxSetup({
+                    crossOrigin: false
+                });
+            }
+
+            else { // Si pb de connexion à l'API
+                // On change la couleur du bouton refresh en rouge
+                $('#reload').attr('src', el.imagesPath + 'refresh_red.png');  
+            }
+
+
+            $('#reload').click(function() {
+                 /*el.find('#weather').html('');
+                 el.find('#weather').css('background', 'url('
+                     + el.weatherImagesPath 
+                     + 'blank.png) 50% 0 no-repeat'); */
+                 $.fn.getWeather(el);
+            });
              
         });
+
+    $.ajaxSetup({
+        crossOrigin: false
+    });
+
+
     }
 })(jQuery);

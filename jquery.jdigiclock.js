@@ -27,6 +27,9 @@
 
  */
 
+// Proxy Google App. Cf. http://www.ajax-cross-origin.com
+proxyGoogleCrossOrigin = "https://script.google.com/macros/s/XXXXXXXXX";
+
 
 (function($) {
     $.fn.extend({

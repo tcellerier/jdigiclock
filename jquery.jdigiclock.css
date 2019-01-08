@@ -99,7 +99,7 @@
     font-size:12pt;
 }
 .high_low {
-    font-size:20pt;
+    font-size:25pt;
 }
 
 #weather #temp {
@@ -129,6 +129,7 @@
     list-style:none;
     margin:158px 0 0 0px;
     padding:0;
+    position: relative;
 }
 
 #weather #forecast li {
@@ -155,7 +156,12 @@
     width:106px;
 }
 
-
+#weather #forecast li .daytemp {
+    position:absolute;
+    bottom: 0px;
+    width: 25%;
+    text-align:center;
+}
 
 
 #weather #bottom {

@@ -21,10 +21,12 @@
 <script>
 $('#digiclock').jdigiclock({
     imagesPath : 'images/', // Base path to image files. Clock and Weather images are located in subdirectories below this
+    lang: 'fr',
     am_pm : false, // Specifies the AM/PM option.
-    weatherLocationCode : '751090', // Meteofrance city code
-    SolarCalendarLocationCode: 'DEPT75', // Meteofrance region code
-    weatherUpdate : '60 // Weather update in minutes.
+    weatherLocationCode : '751170', // Meteofrance city code
+    SolarCalendarLocationCode: 'lat=48.887489&lng=2.32213&formatted=0', // Meteofrance region code
+    weatherUpdate : 60, // Weather update in minutes.
+    svrOffset: 0   
 });
 </script>
 
@@ -38,6 +40,9 @@ $('#digiclock').jdigiclock({
 
 
 ## Changelog
+
+### Version 3.0.1 - 2030-08-07
+* New API for sunset & sunrise data: https://sunrise-sunset.org/api 
 
 ### Version 3.0.0 - 2019-01-05
 * Migrated to undocumented MeteoFrance API

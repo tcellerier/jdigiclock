@@ -41,7 +41,7 @@ $('#digiclock').jdigiclock({
 
 ## Changelog
 
-### Version 3.0.1 - 2030-08-07
+### Version 3.0.1 - 2020-08-07
 * New API for sunset & sunrise data: https://sunrise-sunset.org/api 
 
 ### Version 3.0.0 - 2019-01-05

@@ -1,5 +1,5 @@
 /*
- * jDigiClock plugin 2.1.5
+ * jDigiClock plugin 3.0.1
  *
  * http://www.radoslavdimov.com/jquery-plugins/jquery-plugin-digiclock/
  *
@@ -18,14 +18,16 @@
  * 31-MAY-2016:  2.1.4 Adapted to have only 1 single view page, added French language
  * 13-JAN-2017:  2.1.5 Fixed Yahoo API connection issues 
  * 5-JAN-2019:   3.0.0 Migrated to undocumented MeteoFrance API
+ * 7-AUG-2020:   3.0.1 Change of API for sunrise / sunset
  *                
  *
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
  *
-
+ 
  */
+
 
 // Proxy Google App. Cf. http://www.ajax-cross-origin.com
 proxyGoogleCrossOrigin = "https://script.google.com/macros/s/XXXXXXXXX";
@@ -37,11 +39,11 @@ proxyGoogleCrossOrigin = "https://script.google.com/macros/s/XXXXXXXXX";
         jdigiclock: function(options) {
 
             var defaults = {
-                imagesPath: 'dashboard/jdigiclock/images/',
+                imagesPath: '/dashboard/jdigiclock/images/',
                 lang: 'fr',
                 am_pm: false,
-                weatherLocationCode: '751090', // Meteofrance city code
-                SolarCalendarLocationCode: 'DEPT75', // Meteofrance region code
+                weatherLocationCode: '751170', // Meteofrance city code
+                SolarCalendarLocationCode: 'lat=48.887489&lng=2.32213&formatted=0',
                 weatherUpdate: 59,
                 svrOffset: 0   
             };
@@ -289,7 +291,8 @@ proxyGoogleCrossOrigin = "https://script.google.com/macros/s/XXXXXXXXX";
             // On met à jour les data que si l'API a retourné des données
             if (typeof data !== 'undefined' && data != null) {
  
-                var temp_now = Math.round(( parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMin) + parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMax)) / 2) // 1er élèment du forecast 48h
+                // 1er élèment du forecast 48h. On fait la moyenne entre Min et Max
+                var temp_now = Math.round(( parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMin) + parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMax)) / 2) 
                 var curr_temp = '<p class="temp">' + String(temp_now) 
                                + '&deg;<span class="metric">'
                                + 'C' + '</span></p>';
@@ -352,22 +355,23 @@ proxyGoogleCrossOrigin = "https://script.google.com/macros/s/XXXXXXXXX";
                 
                 // On récupère les info de coucher / lever soleil
                 $.ajaxSetup({
-                    crossOrigin: true,
+                    crossOrigin: false,
                     proxy: proxyGoogleCrossOrigin
                 });
-                $.getJSON('http://www.meteofrance.com/mf3-rpc-portlet/rest/ephemerides/' + el.SolarCalendarLocationCode
+                $.getJSON('https://api.sunrise-sunset.org/json?' + el.SolarCalendarLocationCode
                     , function (data) {
                        // On met à jour les data que si l'API a retourné des données
                         if (typeof data !== 'undefined' && data != null) {
 
-                            data = JSON.parse(data);
-                            soleil = '<font color="yellow">☀</font> ▲&nbsp;' + data.heureLeveSoleil + '&nbsp;&nbsp;&nbsp;▼&nbsp;' + data.heureCoucheSoleil;
+                            sunrise = new Date( data.results.sunrise );
+                            sunrise_formatted = sunrise.getHours() + "h" + (sunrise.getMinutes()<10?'0':'') + sunrise.getMinutes();
+                            sunset = new Date( data.results.sunset );
+                            sunset_formatted = sunset.getHours() + "h" + (sunset.getMinutes()<10?'0':'') + sunset.getMinutes();
+
+                            soleil = '<font color="yellow">☀</font> ▲&nbsp;' + sunrise_formatted + '&nbsp;&nbsp;&nbsp;▼&nbsp;' + sunset_formatted;
                             el.find('#soleil').append(soleil);
                         }
                     });
-                $.ajaxSetup({
-                    crossOrigin: false
-                });
             }
 
             else { // Si pb de connexion à l'API
@@ -386,9 +390,9 @@ proxyGoogleCrossOrigin = "https://script.google.com/macros/s/XXXXXXXXX";
              
         });
 
-    $.ajaxSetup({
+     $.ajaxSetup({
         crossOrigin: false
-    });
+    });  
 
 
     }

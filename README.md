@@ -2,9 +2,8 @@
 
 
 ## Install
+* Only works with MeteoFrance
 * Require Jquery library 
-* Require jQuery AJAX Cross Origin: plugin to bypass Same-origin_policy using Google Apps Script (http://www.ajax-cross-origin.com)
-* In the file jquery.jdigiclock.js, set up the Google App URL variable proxyGoogleCrossOrigin (instructions on http://www.ajax-cross-origin.com after a small donation) 
 * Copy the project files and insert the code below in an html page located in the same folder
 * Change the parameters in the code below to fit your needs
 ```
@@ -24,7 +23,6 @@ $('#digiclock').jdigiclock({
     lang: 'fr',
     am_pm : false, // Specifies the AM/PM option.
     weatherLocationCode : '751170', // Meteofrance city code
-    SolarCalendarLocationCode: 'lat=48.887489&lng=2.32213&formatted=0', // Meteofrance region code
     weatherUpdate : 60, // Weather update in minutes.
     svrOffset: 0   
 });
@@ -40,6 +38,9 @@ $('#digiclock').jdigiclock({
 
 
 ## Changelog
+
+### Version 3.0.2 - 2021-04-011
+* Fix Meteo France API
 
 ### Version 3.0.1 - 2020-08-07
 * New API for sunset & sunrise data: https://sunrise-sunset.org/api 

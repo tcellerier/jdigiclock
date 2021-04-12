@@ -281,8 +281,23 @@
  
                 // 1er élèment du forecast 48h. On fait la moyenne entre Min et Max (déprécié)
                 //var temp_now = Math.round(( parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMin) + parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMax)) / 2) 
-                var temp_now = data.properties.forecast[0].T
-                var curr_temp = '<p class="temp">' + String(temp_now) 
+
+                // 1er forecast après l'heure actuelle
+                var temp_now_utc = new Date();
+                temp_now_utc.setMinutes(0);
+                temp_now_utc.setSeconds(0);
+                temp_now_utc.setMilliseconds(0)
+                temp_now_utc = temp_now_utc.toISOString(); // UTC
+
+                i = 0;
+                while (i + 1 < data.properties.forecast.length) {
+                    var forecast_time = new Date(data.properties.forecast[i].time).toISOString();
+                    if (forecast_time >= temp_now_utc)
+                        break;
+                    i=i+1;
+                }
+                var forecast_now = data.properties.forecast[i].T;
+                var curr_temp = '<p class="temp">' + String(forecast_now) 
                                + '&deg;<span class="metric">'
                                + 'C' + '</span></p>';
 

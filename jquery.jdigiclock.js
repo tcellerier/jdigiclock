@@ -301,7 +301,7 @@
                                + '&deg;<span class="metric">'
                                + 'C' + '</span></p>';
 
-                 el.find('#weather').css('background','url(' + el.weatherImagesPath + data.properties.forecast[0].weather_icon  + '.svg) ');
+                 el.find('#weather').css('background','url(' + el.weatherImagesPath + data.properties.forecast[i].weather_icon  + '.svg) ');
                  el.find('#weather').css('background-repeat','no-repeat');
                  el.find('#weather').css('background-position','50% -20%');
                  el.find('#weather').css('background-size','50%');

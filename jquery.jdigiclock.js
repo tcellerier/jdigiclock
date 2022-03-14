@@ -1,5 +1,5 @@
 /*
- * jDigiClock plugin 3.0.2
+ * jDigiClock plugin 3.2
  *
  * http://www.radoslavdimov.com/jquery-plugins/jquery-plugin-digiclock/
  *
@@ -20,6 +20,8 @@
  * 5-JAN-2019:   3.0.0 Migrated to undocumented MeteoFrance API
  * 7-AUG-2020:   3.0.1 Change of API for sunrise / sunset
  * 11-APR-2021   3.0.2 Fix MeteoFrance API
+ * 5-MAY-2021    3.1 Add seasonal average
+ * 24-FEB-2022   3.2 Add rainfall and wind gust
  *                
  *
  * Dual licensed under the MIT and GPL licenses:
@@ -270,9 +272,8 @@
     }
 
  $.fn.getWeather = function(el) {
-
-
-    // On récupère les prévisions
+    
+    // On récupère les prévisions journalières
     $.getJSON('https://rpcache-aa.meteofrance.com/internet2018client/2.0/forecast?id=' + el.weatherLocationCode + '&instants=&day=5&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
         , function (data) {
 
@@ -281,21 +282,33 @@
  
                 // 1er élèment du forecast 48h. On fait la moyenne entre Min et Max (déprécié)
                 //var temp_now = Math.round(( parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMin) + parseFloat(data.result.previsions48h[Object.keys(data.result.previsions48h)[0]].temperatureMax)) / 2) 
-
+                
                 // 1er forecast après l'heure actuelle
                 var temp_now_utc = new Date();
                 temp_now_utc.setMinutes(0);
                 temp_now_utc.setSeconds(0);
                 temp_now_utc.setMilliseconds(0)
-                temp_now_utc = temp_now_utc.toISOString(); // UTC
+                temp_now_utc = temp_now_utc.toISOString();
 
+                // On récupère le forecast de la bonne heure (heure suivante)
                 i = 0;
                 while (i + 1 < data.properties.forecast.length) {
-                    var forecast_time = new Date(data.properties.forecast[i].time).toISOString();
-                    if (forecast_time >= temp_now_utc)
-                        break;
+                    var forecast_time = new Date(data.properties.forecast[i].time).toISOString(); // UTC
                     i=i+1;
+                    if (forecast_time >= temp_now_utc) {
+                        break;
+                    }
                 }
+
+                // On récupère le max des vents rafales pour chaque jour (max de toutes les heures)
+                var vents_rafales_array = [];
+                for (j=0; j< data.properties.forecast.length; j++) {
+                    date_vent = data.properties.forecast[j].time.substring(0, 10);
+                    if (typeof vents_rafales_array[date_vent]  == 'undefined'  ||  data.properties.forecast[j].wind_speed_gust > vents_rafales_array[date_vent]) {
+                        vents_rafales_array[date_vent] = data.properties.forecast[j].wind_speed_gust;
+                    }
+                }
+
                 var forecast_now = data.properties.forecast[i].T;
                 var curr_temp = '<p class="temp">' + String(forecast_now) 
                                + '&deg;<span class="metric">'
@@ -303,17 +316,35 @@
 
                  el.find('#weather').css('background','url(' + el.weatherImagesPath + data.properties.forecast[i].weather_icon  + '.svg) ');
                  el.find('#weather').css('background-repeat','no-repeat');
-                 el.find('#weather').css('background-position','50% -20%');
+                 el.find('#weather').css('background-position','50% -35%');
                  el.find('#weather').css('background-size','50%');
                                      
-                 var weather = '<div id="local"><p class="city">' 
+                day_min = data.properties.daily_forecast[0].T_min;
+                day_max = data.properties.daily_forecast[0].T_max;
+
+                var pluieprevision = "";
+                if (typeof data.properties.daily_forecast[0].total_precipitation_24h !== 'undefined' && data.properties.daily_forecast[0].total_precipitation_24h > 0 )
+                    pluieprevision = '<p style="color:#83C5E0;font-size:11pt;position:absolute;margin:15px 0px 0 -9px;"><img width="14px" src="' + el.imagesPath + 'rain_forecast.png">&nbsp;' + data.properties.daily_forecast[0].total_precipitation_24h + '<span style="font-size:70%">&nbsp;mm</span></p>';
+                         
+                var rafales = "";
+                var jour_rafales = data.properties.daily_forecast[0].time.substring(0, 10);
+                if (typeof vents_rafales_array[jour_rafales] !== 'undefined' && vents_rafales_array[jour_rafales] > 0) {
+                    var rafales_kmh = Math.ceil(vents_rafales_array[jour_rafales] * 3.6 / 5) * 5;
+                    rafales = '<p style="color:#ffffff;background-color:#ED1C2388;font-size:10pt;line-height:13px;position:absolute;margin:39px 0px 0 -5px;">&nbsp;' + rafales_kmh + ' <span style="font-size:80%">km/h</span>&nbsp;</p>';
+                }
+
+                var weather = '<div id="local"><p class="city">' 
                              + data.properties.name
                              + '</p>' 
+                             + pluieprevision
+                             + rafales
                              + '<p class="high_low">' 
-                              + Math.round(data.properties.daily_forecast[0].T_min)
-                              + '&deg;&nbsp;/&nbsp;' 
-                              + Math.round(data.properties.daily_forecast[0].T_max)
-                              + '&deg;</p></div>';
+                             + Math.round(day_min)
+                             + '&deg;&nbsp;/&nbsp;' 
+                             + Math.round(day_max)
+                             + '&deg;</p>'
+                             + '<p id="normales"></p>' 
+                             + '</div>';
 
                  weather += '<div id="temp"><p id="date">' 
                          + el.currDate 
@@ -326,21 +357,33 @@
                  el.find('#weather').append('<ul id="forecast"></ul>');
                  for (i = 1; i <= 4; i++) {
                     
-                     var d_date = new Date(data.properties.daily_forecast[i].time);
-                     var forecast = '<li>';
+                    var rafales = "";
+                    var jour_rafales = data.properties.daily_forecast[i].time.substring(0, 10);
+                    if (typeof vents_rafales_array[jour_rafales] !== 'undefined' && vents_rafales_array[jour_rafales] > 0) {
+                        var rafales_kmh = Math.ceil(vents_rafales_array[jour_rafales] * 3.6 / 5) * 5;
+                        rafales = '<div class="rafalesprevisionjour"><span style="background-color: #ED1C2388;text-align:right;margin-right:3px;">&nbsp;' + rafales_kmh + ' <span style="font-size:80%">km/h</span>&nbsp;</span></div>';
+                    }
 
-                  
-                     forecast    += '<p class="dayname">' + el.lang.dayNames[d_date.getDay()] + '&nbsp;' + d_date.getDate() + '</p>'
+                     var d_date = new Date(data.properties.daily_forecast[i].time);
+                     var forecast = '<li>'
+                                  +  '<div class="pluieprevisionjour">';
+
+                    if (typeof data.properties.daily_forecast[i].total_precipitation_24h !== 'undefined' && data.properties.daily_forecast[i].total_precipitation_24h > 0 )
+                        forecast +=  '<span style="background-color: #2B2B32CC;text-align:left;margin-left:4px;"><img style="width:10px;" src="' + el.imagesPath + 'rain_forecast.png">&nbsp;' + data.properties.daily_forecast[i].total_precipitation_24h + ' <span style="font-size:80%">mm</span>&nbsp;</span>';
+                        
+
+                    forecast    += '</div>'
+                                  + rafales
+                                  +   '<p class="dayname">' + el.lang.dayNames[d_date.getDay()] + '&nbsp;' + d_date.getDate() + '</p>'
                                   + '<img style="position: relative; top: -20px;" src="' 
                                   + el.weatherImagesPath 
                                   + data.properties.daily_forecast[i].daily_weather_icon
                                   + '.svg" alt="' 
                                   + data.properties.daily_forecast[i].daily_weather_description
                                   + '" title="' 
-                                  + data.properties.daily_forecast[i].daily_weather_description
-                                  + '" />';
-                               
-                     forecast    += '<div class="daytemp">' 
+                                  + data.properties.daily_forecast[i].daily_weather_description 
+                                  + '" />'
+                                  + '<div class="daytemp">' 
                                   + Math.round(data.properties.daily_forecast[i].T_min)
                                   + '&deg;&nbsp;/&nbsp;' 
                                   + Math.round(data.properties.daily_forecast[i].T_max)
@@ -362,7 +405,64 @@
                 soleil = '<font color="yellow">☀</font> ▲&nbsp;' + sunrise_formatted + '&nbsp;&nbsp;&nbsp;▼&nbsp;' + sunset_formatted;                
                 el.find('#soleil').append(soleil);
 
-        
+
+                // On récupère les normales saisnonières
+                $.getJSON('https://rpcache-aa.meteofrance.com/internet2018client/2.0/normals?id=' + el.weatherLocationCode + '&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
+                    , function (data) {
+
+                        // On met à jour les data que si l'API a retourné des données
+                        if (typeof data !== 'undefined' && data != null) {
+             
+                            var today = new Date();
+                            const monthNames = ["january", "february", "march", "april", "may", "june","july", "august", "september", "october", "november", "december"];
+                            var period = monthNames[today.getMonth()];
+                            // On récupère les normales du bon mois
+                            var normale_min;
+                            var normale_max;
+                            i = 0;
+                            while (i + 1 < data.properties.stats.length) {
+                                if (period == data.properties.stats[i]['period']) {
+                                    normale_min = data.properties.stats[i]['T_min'];
+                                    normale_max = data.properties.stats[i]['T_max'];
+                                    break;
+                                }
+                                i=i+1;
+                            }
+                            diff_min = Math.round(day_min- normale_min);
+                            if (diff_min > 0) 
+                                diff_min_display = "+" + String(diff_min) + "°"; 
+                            else if (diff_min < 0) 
+                                diff_min_display = String(diff_min) + "°";
+                            else
+                                diff_min_display = "≈";
+                            diff_max = Math.round(day_max- normale_max);
+                            if (diff_max > 0) 
+                                diff_max_display = "+" + String(diff_max) + "°";
+                            else if (diff_max < 0) 
+                                diff_max_display =  String(diff_max) + "°";
+                            else
+                                diff_max_display = "≈";
+
+                            normales = "<span class='normalediff normale_min'>" + diff_min_display + "</span>&nbsp;&nbsp;vs ñ&nbsp;&nbsp;<span class='normalediff normale_max'>" + diff_max_display + "</span>&nbsp;&nbsp;";
+                            el.find('#normales').html(normales);
+
+                            if (diff_min < -1) 
+                                 el.find('.normale_min').css('color','#1B9BD3');
+                            else if (diff_min > 1)
+                                el.find('.normale_min').css('color','#ED1C24');
+                            else 
+                                el.find('.normale_min').css('color','#FFFFFF');
+
+                            if (diff_max < -1) 
+                                 el.find('.normale_max').css('color','#1B9BD3');
+                            else if (diff_max > 1)
+                                el.find('.normale_max').css('color','#ED1C24');
+                            else 
+                                el.find('.normale_max').css('color','#FFFFFF');
+                        }
+
+                    });
+
             }
 
             else { // Si pb de connexion à l'API
@@ -372,11 +472,11 @@
 
 
             $('#reload').click(function() {
-                
                  $.fn.getWeather(el);
             });
              
         });
+
 
 
     }

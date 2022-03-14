@@ -39,6 +39,10 @@ $('#digiclock').jdigiclock({
 
 ## Changelog
 
+### Version 3.2 - 2022-02-24
+* Add seasonal average
+* Add rainfall and wind gust
+
 ### Version 3.0.2 - 2021-04-11
 * Fix Meteo France API
 

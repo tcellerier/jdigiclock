@@ -92,7 +92,7 @@
 }
 #weather #local {
     float:left;
-    margin:70px 0 0 15px;
+    margin:66px 0 0 15px;
 }
 
 .city {
@@ -101,6 +101,21 @@
 .high_low {
     font-size:25pt;
 }
+
+#normales {
+    position:relative;
+    top: -7px;
+    font-size:10pt;
+    text-align:center;
+}
+
+.normalediff {
+    background: #2a2b33;
+    border-radius: 3pt;
+    color: #FFFFFF;
+    padding: 1px 4px 1px 4px;
+}
+
 
 #weather #temp {
     float:right;
@@ -163,6 +178,25 @@
     text-align:center;
 }
 
+#weather #forecast li .pluieprevisionjour {
+    font-size:8pt;
+    text-align:left;
+    position: absolute;
+    top: 20px;
+    width: 25%;
+    color:#83C5E0;
+    z-index:99;
+}
+
+#weather #forecast li .rafalesprevisionjour {
+    font-size:8pt;
+    text-align:right;
+    position: absolute;
+    top: 20px;
+    width: 25%;
+    color:#FFFFFF;
+    z-index:99;
+}
 
 #weather #bottom {
     text-align:right;
@@ -186,6 +220,3 @@
     vertical-align:middle;
     cursor:pointer;
 }
-
-
-

@@ -22,6 +22,7 @@
  * 11-APR-2021   3.0.2 Fix MeteoFrance API
  * 5-MAY-2021    3.1 Add seasonal average
  * 24-FEB-2022   3.2 Add rainfall and wind gust
+ * 23-SEP-2023   3.2.1 Fix API Normals (switched to long & lat) 
  *                
  *
  * Dual licensed under the MIT and GPL licenses:
@@ -42,6 +43,7 @@
                 lang: 'fr',
                 am_pm: false,
                 weatherLocationCode: '751170', // Meteofrance city code
+                weatherLocationCoord: 'lat=48.871916&lon=2.33923', // Latitude & Longitude
                 weatherUpdate: 59,
                 svrOffset: 0   
             };
@@ -69,6 +71,7 @@
                 $this.lang = regional[o.lang] == undefined ? regional['en'] : regional[o.lang];
                 $this.am_pm = o.am_pm;
                 $this.weatherLocationCode = o.weatherLocationCode;
+                $this.weatherLocationCoord = o.weatherLocationCoord;
                 $this.weatherUpdate = o.weatherUpdate;
                 $this.svrOffset = o.svrOffset;
                 $this.clockImagesPath = o.imagesPath + 'clock/';
@@ -407,7 +410,7 @@
 
 
                 // On récupère les normales saisnonières
-                $.getJSON('https://rpcache-aa.meteofrance.com/internet2018client/2.0/normals?id=' + el.weatherLocationCode + '&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
+                $.getJSON('https://rpcache-aa.meteofrance.com/internet2018client/2.0/normals?' + el.weatherLocationCoord + '&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
                     , function (data) {
 
                         // On met à jour les data que si l'API a retourné des données

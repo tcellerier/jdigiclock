@@ -39,6 +39,9 @@ $('#digiclock').jdigiclock({
 
 ## Changelog
 
+### Version 3.2.1 - 2023-09-23
+* Fix API for Normals (switched to long & lat parameters) 
+  
 ### Version 3.2 - 2022-02-24
 * Add seasonal average
 * Add rainfall and wind gust

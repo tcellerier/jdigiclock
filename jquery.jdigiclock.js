@@ -23,6 +23,7 @@
  * 5-MAY-2021    3.1 Add seasonal average
  * 24-FEB-2022   3.2 Add rainfall and wind gust
  * 23-SEP-2023   3.2.1 Fix API Normals (switched to long & lat) 
+ * 8-APR-2026   3.2.2  Fix Meteofrance URLs
  *                
  *
  * Dual licensed under the MIT and GPL licenses:
@@ -277,7 +278,7 @@
  $.fn.getWeather = function(el) {
     
     // On récupère les prévisions journalières
-    $.getJSON('https://rpcache-aa.meteofrance.com/internet2018client/2.0/forecast?id=' + el.weatherLocationCode + '&instants=&day=5&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
+    $.getJSON('https://rwg.meteofrance.com/internet2018client/2.0/forecast?id=' + el.weatherLocationCode + '&instants=&day=5&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
         , function (data) {
 
             // On met à jour les data que si l'API a retourné des données
@@ -410,7 +411,7 @@
 
 
                 // On récupère les normales saisnonières
-                $.getJSON('https://rpcache-aa.meteofrance.com/internet2018client/2.0/normals?' + el.weatherLocationCoord + '&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
+                $.getJSON('https://rwg.meteofrance.com/internet2018client/2.0/normals?' + el.weatherLocationCoord + '&token=__Wj7dVSTjV9YGu1guveLyDq0g7S7TfTjaHBTPTpO0kj8__' // http://ws.meteofrance.com/ws/getDetail/france/'+ el.weatherLocationCode + '.json'
                     , function (data) {
 
                         // On met à jour les data que si l'API a retourné des données
